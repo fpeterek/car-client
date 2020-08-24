@@ -1,50 +1,57 @@
 import socket
 import os
+from typing import Tuple
 
 from car_info import CarInfo
 
-host = os.getenv("SERVER_HOST")
-port = int(os.getenv("SERVER_PORT"))
+_host = os.getenv("SERVER_HOST")
+_port = int(os.getenv("SERVER_PORT"))
 
 
-def to_bytes(value: int) -> bytes:
-    return value.to_bytes(1, 'little', signed=True)
+def _to_bytes(value: int, signed: bool = True) -> bytes:
+    return value.to_bytes(1, 'little', signed=signed)
 
 
-def send_data(velocity: int, steering_angle: int) -> None:
+_padding = _to_bytes(0)
+
+
+class _MessageType:
+    drive = _to_bytes(0, signed=False)
+    healthcheck = _to_bytes(1, signed=False)
+    info = _to_bytes(2, signed=False)
+
+
+def drive(velocity: int, steering_angle: int) -> bool:
 
     velocity = CarInfo.bound_v(velocity)
     steering_angle = CarInfo.bound_s(steering_angle)
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        sock.connect((host, port))
-        sock.sendall(to_bytes(velocity) + to_bytes(steering_angle))
-        if not int(sock.recv(1)[0]):
-            raise Exception('Message rejected by car')
+        sock.connect((_host, _port))
+        sock.sendall(_MessageType.drive + _to_bytes(velocity) + _to_bytes(steering_angle))
+
+        return bool(sock.recv(1)[0])
 
 
-def read_v():
-    return CarInfo.bound_v(int(input('New velocity: ')))
+def healthcheck() -> bool:
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.connect((_host, _port))
+        sock.sendall(_MessageType.healthcheck + _padding + _padding)
+
+        return bool(sock.recv(1)[0])
 
 
-def read_s():
-    return CarInfo.bound_s(int(input('New steering angle: ')))
+def info() -> Tuple[int, int]:
 
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.connect((_host, _port))
+        sock.sendall(_MessageType.info + _padding + _padding)
 
-def menu():
+        data = sock.recv(2)
 
-    v = 0
-    s = 0
+        v = int.from_bytes(data[0:1], 'little', signed=True)
+        s = int.from_bytes(data[1:2], 'little', signed=True)
 
-    while True:
-        print('[a] Set Velocity  [b] Set Steering Angle  [c] Print Current')
-        i = input('> ')
-        if i == 'a':
-            v = read_v()
-        if i == 'b':
-            s = read_s()
-        if i in ('a', 'b'):
-            send_data(v, s)
+        return v, s
 
-        if i == 'c':
-            print(f'Current (velocity, angle) = ({v}, {s})')

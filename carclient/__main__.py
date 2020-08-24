@@ -1,4 +1,4 @@
-import client
+import menu
 
 if __name__ == '__main__':
-    client.menu()
+    menu.menu()
