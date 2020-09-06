@@ -19,6 +19,7 @@ class _MessageType:
     drive = _to_bytes(0, signed=False)
     healthcheck = _to_bytes(1, signed=False)
     info = _to_bytes(2, signed=False)
+    ebrake = _to_bytes(3, signed=False)
 
 
 def drive(velocity: int, steering_angle: int) -> bool:
@@ -42,16 +43,25 @@ def healthcheck() -> bool:
         return bool(sock.recv(1)[0])
 
 
-def info() -> Tuple[int, int]:
+def info() -> Tuple[int, int, bool]:
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.connect((_host, _port))
         sock.sendall(_MessageType.info + _padding + _padding)
 
-        data = sock.recv(2)
+        data = sock.recv(3)
 
         v = int.from_bytes(data[0:1], 'little', signed=True)
         s = int.from_bytes(data[1:2], 'little', signed=True)
+        b = bool(int.from_bytes(data[2:3], 'little', signed=True))
 
-        return v, s
+        return v, s, b
 
+
+def ebrake(val: bool) -> bool:
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.connect((_host, _port))
+        sock.sendall(_MessageType.ebrake + _to_bytes(int(val)) + _padding)
+
+        return bool(sock.recv(1)[0])
