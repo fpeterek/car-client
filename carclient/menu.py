@@ -1,4 +1,4 @@
-from client import drive, healthcheck, info, ebrake
+from client import drive, healthcheck, info, ebrake, position
 from car_info import CarInfo
 
 
@@ -21,7 +21,7 @@ def menu():
     s = 0
 
     while True:
-        print('[a] Set Velocity  [b] Set Steering Angle  [c] Print Current  [d] Healthcheck  [e] Emergency Brake')
+        print('[a] Set Velocity  [b] Set Steering Angle  [c] Print Current  [d] Healthcheck  [e] Emergency Brake  [f] Position')
         i = input('> ')
         if i == 'a':
             v = read_v()
@@ -40,3 +40,5 @@ def menu():
         if i == 'e':
             ebrake(read_ebrake())
 
+        if i == 'f':
+            print(position())

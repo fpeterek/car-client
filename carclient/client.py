@@ -20,6 +20,7 @@ class _MessageType:
     healthcheck = _to_bytes(1, signed=False)
     info = _to_bytes(2, signed=False)
     ebrake = _to_bytes(3, signed=False)
+    position = _to_bytes(4, signed=False)
 
 
 def drive(velocity: int, steering_angle: int) -> bool:
@@ -56,6 +57,21 @@ def info() -> Tuple[int, int, bool]:
         b = bool(int.from_bytes(data[2:3], 'little', signed=True))
 
         return v, s, b
+
+
+def position() -> Tuple[float, float]:
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.connect((_host, _port))
+        sock.sendall(_MessageType.position + _padding + _padding)
+
+        data = sock.recv(17)
+
+        ok = bool(int.from_bytes(data[0:1], 'little', signed=False))
+        x = int.from_bytes(data[1:9], 'little', signed=True) / 10_000_000_000
+        y = int.from_bytes(data[9:], 'little', signed=True) / 10_000_000_000
+
+        return (y, x) if ok else None
 
 
 def ebrake(val: bool) -> bool:
