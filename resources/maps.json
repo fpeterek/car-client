@@ -9,5 +9,38 @@
       "y": 49.9767008
     },
     "image": "koberice.png"
+  },
+  "upper_campus": {
+    "leftTop": {
+      "x": 18.1561511,
+      "y": 49.8368956
+    },
+    "rightBottom": {
+      "x": 18.1672875,
+      "y": 49.8318994
+    },
+    "image": "upper_campus.png"
+  },
+  "campus": {
+    "leftTop": {
+      "x": 18.1495422,
+      "y": 49.8379439
+    },
+    "rightBottom": {
+      "x": 18.1718153,
+      "y": 49.8279786
+    },
+    "image": "campus.png"
+  },
+  "garage": {
+    "leftTop": {
+      "x": 18.1613278,
+      "y": 49.8361328
+    },
+    "rightBottom": {
+      "x": 18.1641172,
+      "y": 49.8348872
+    },
+    "image": "garage.png"
   }
 }

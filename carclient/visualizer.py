@@ -2,6 +2,7 @@ from typing import Tuple
 
 import pygame
 
+from position_tracker import PositionTracker
 from vmap import Map
 
 
@@ -26,6 +27,9 @@ class Visualizer:
         print(self.px, self.py)
 
         self.points = []
+        self.adjusted = []
+
+        self.pt = PositionTracker()
 
         pygame.display.set_caption('Visualizer')
 
@@ -49,12 +53,18 @@ class Visualizer:
         self.screen.blit(self.map.img, self.map.img.get_rect())
 
         for point in self.points:
-            pygame.draw.circle(self.screen, (255, 0, 0), (point[0], point[1]), 2)
+            pygame.draw.circle(self.screen, (255, 0, 0), (point[0], point[1]), 1)
+
+        for point in self.adjusted:
+            pygame.draw.circle(self.screen, (66, 135, 245), (point[0], point[1]), 1)
 
         pygame.display.flip()
 
     def add_point(self, x, y):
         self.points.append(self.coords_to_cart(x, y))
+        self.pt.add((x, y))
+        curr = self.pt.current_position
+        self.adjusted.append(self.coords_to_cart(curr[0], curr[1]))
 
     def poll_events(self):
         for _ in pygame.event.get():
@@ -62,13 +72,10 @@ class Visualizer:
 
 
 if __name__ == '__main__':
-    vis = Visualizer('koberice')
-    files = ['geodoma', 'geohrbitov', 'geolouky', 'geoolsina', 'geoolsinaauto', 'geoolsinazahradni']
+    vis = Visualizer('garage')
+    files = ['geodoma', 'geohrbitov', 'geolouky', 'geoolsina', 'geoolsinaauto', 'geoolsinazahradni', 'garage']
     files = [f'resources/{name}.csv' for name in files]
-    vis.load_csv(files[2])
-    # vis.add_point(18.051836315436294, 49.98021897903856)
-    # vis.add_point(18.051065580146712, 49.98034028731247)
-    # vis.add_point(18.050132749635395, 49.98033176847581)
+    vis.load_csv(files[-1])
 
     while True:
         vis.poll_events()
