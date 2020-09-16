@@ -61,6 +61,14 @@ class PathPlanner:
         if waypoints:
             self.velocity = 100
 
+    def calc_desired_heading(self, waypoints):
+        if not waypoints or self.pt.rotation is None:
+            return
+
+        heading = calc_angle(begin=self.pt.current_position, end=waypoints[0].position)
+
+        return heading
+
     def plan(self, waypoints: List[Waypoint]):
 
         car_pos = self.pt.current_position
@@ -70,7 +78,7 @@ class PathPlanner:
             self.steering = 0.0
             return drive(int(self.velocity), int(self.steering))
 
-        self.desired_heading = calc_angle(car_pos, waypoints[0].position)
+        self.desired_heading = self.calc_desired_heading(waypoints)
 
         self.adjust_steering()
         self.adjust_speed(waypoints)

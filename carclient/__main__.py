@@ -4,6 +4,7 @@ import menu
 from client import position
 from path_planner import PathPlanner
 from position_tracker import PositionTracker
+from visualizer import Visualizer
 from waypoint import Waypoint
 
 
@@ -11,6 +12,7 @@ def follow_waypoints():
 
     pt = PositionTracker()
     planner = PathPlanner(pt)
+    vis = Visualizer(map_name='garage', pt=pt)
 
     waypoints = [
         Waypoint(18.1622607, 49.8358360),
@@ -23,17 +25,23 @@ def follow_waypoints():
         # Waypoint(49.8351281, 18.1626489)
     ]
 
+    vis.set_waypoints(waypoints)
+
+    pt.disable_rotation()
     for i in range(10):
         pos = position()
         pt.add(pos)
+        vis.update_from_pt()
         print(i)
         time.sleep(1.0)
 
     while waypoints:
         pos = position()
         pt.add(pos)
+        vis.update_from_pt()
         planner.plan(waypoints)
-        time.sleep(0.2)
+        pt.enable_rotation()
+        time.sleep(1.0)
 
 
 if __name__ == '__main__':

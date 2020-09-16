@@ -1,5 +1,4 @@
 from typing import Tuple
-import math
 
 from carutil import calc_angle
 
@@ -11,7 +10,18 @@ class PositionTracker:
     def __init__(self):
         self.last_pos = None
         self.position_history = []
-        self.rotation = None
+        self._rotation = None
+        self.rotation_enabled = True
+
+    def enable_rotation(self):
+        self.rotation_enabled = True
+
+    def disable_rotation(self):
+        self.rotation_enabled = False
+
+    @property
+    def rotation(self):
+        return self._rotation if self.rotation_enabled else None
 
     @property
     def current_position(self):
@@ -29,7 +39,7 @@ class PositionTracker:
             x_sum += pos[0] * weight
             y_sum += pos[1] * weight
             total += weight
-            weight *= 0.8
+            weight *= 0.7
 
         return x_sum / total, y_sum / total
 
@@ -41,7 +51,7 @@ class PositionTracker:
         if len(self.position_history) < 2 or self.position_history[0] is None or self.last_pos is None:
             return
 
-        self.rotation = calc_angle(begin=self.current_position, end=self.last_pos)
+        self._rotation = calc_angle(begin=self.last_pos, end=self.current_position)
 
     def add(self, pos: Tuple[float, float]):
         self.last_pos = self.current_position
