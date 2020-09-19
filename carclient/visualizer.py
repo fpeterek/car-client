@@ -82,7 +82,7 @@ class Visualizer:
             pygame.draw.circle(self.screen, (255, 138, 138), (x, y), 15)
             pygame.draw.circle(self.screen, (255, 78, 78), (x, y), 5)
 
-        if self.pt.position_history and Visualizer.draw_car:
+        if self.pt.position_history and self.pt.position_history[0] is not None and Visualizer.draw_car:
             w = self.car_image.get_rect().width
             h = self.car_image.get_rect().height
             pos = self.pt.position_history[0]
@@ -96,6 +96,8 @@ class Visualizer:
     def update_from_pt(self):
         if self.pt.position_history:
             hist = self.pt.position_history[0]
+            if hist is None:
+                return self.redraw()
             self.points.append(self.coords_to_cart(hist[0], hist[1]))
             adj = self.pt.current_position
             self.adjusted.append(self.coords_to_cart(adj[0], adj[1]))
@@ -115,7 +117,8 @@ class Visualizer:
 if __name__ == '__main__':
     pt = PositionTracker()
     vis = Visualizer('garage', pt)
-    files = ['geodoma', 'geohrbitov', 'geolouky', 'geoolsina', 'geoolsinaauto', 'geoolsinazahradni', 'garage']
+    files = ['geodoma', 'geohrbitov', 'geolouky', 'geoolsina', 'geoolsinaauto',
+             'geoolsinazahradni', 'garage', 'waypoint1', 'waypoint2', 'waypointstart']
     files = [f'resources/{name}.csv' for name in files]
 
     begin_x = vis.map.left_top[0]
@@ -130,8 +133,8 @@ if __name__ == '__main__':
     ]
 
     waypoints = [
-        Waypoint(18.1622607, 49.8358360),
-        Waypoint(18.1621518, 49.8356722)
+        Waypoint(18.1621976, 49.8358295),
+        Waypoint(18.1621679, 49.8357131),
         # Waypoint(18.1622303, 49.8356781),
         # Waypoint(18.1624181, 49.8356175),
         # Waypoint(49.8355103, 18.1625603),
@@ -143,6 +146,7 @@ if __name__ == '__main__':
     vis.set_waypoints(waypoints)
 
     vis.load_csv(files[-1])
+    print(pt.current_position)
 
     while True:
         vis.poll_events()

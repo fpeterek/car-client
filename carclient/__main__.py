@@ -32,6 +32,7 @@ def follow_waypoints():
         pos = position()
         pt.add(pos)
         vis.update_from_pt()
+        vis.poll_events()
         print(i)
         time.sleep(1.0)
 
@@ -39,8 +40,15 @@ def follow_waypoints():
         pos = position()
         pt.add(pos)
         vis.update_from_pt()
+        vis.poll_events()
         planner.plan(waypoints)
         pt.enable_rotation()
+        time.sleep(1.0)
+
+    while True:
+        pt.add(position())
+        vis.update_from_pt()
+        vis.poll_events()
         time.sleep(1.0)
 
 
