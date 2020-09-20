@@ -101,7 +101,7 @@ class Visualizer:
             self.points.append(self.coords_to_cart(hist[0], hist[1]))
             adj = self.pt.current_position
             self.adjusted.append(self.coords_to_cart(adj[0], adj[1]))
-            rot = 360.0 if self.pt.rotation is None else self.pt.rotation
+            rot = 0 if self.pt.rotation is None else self.pt.rotation
             self.car_image = pygame.transform.rotate(self.orig_car, rot)
 
         self.redraw()

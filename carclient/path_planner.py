@@ -1,5 +1,7 @@
 from typing import List
 
+import geopy.distance
+
 from direction import Direction
 from position_tracker import PositionTracker
 from carutil import calc_angle
@@ -36,14 +38,25 @@ class PathPlanner:
         angle = PathPlanner.calc_angle(cur=self.pt.rotation, des=self.desired_heading)
         direction = [Direction.LEFT, Direction.RIGHT][angle > 0]
 
-        if abs(angle) <= 1.0:
+        angle = abs(angle)
+        d = int(direction)
+
+        if angle <= 1.0:
             self.steering = 0
-        elif abs(angle) <= 5.0:
-            self.steering = 2 * int(direction)
-        elif abs(angle) <= 10.0:
-            self.steering = 5 * int(direction)
+        elif angle <= 5.0:
+            self.steering = 2 * d
+        elif angle <= 10.0:
+            self.steering = 4 * d
+        elif angle <= 20.0:
+            self.steering = 6 * d
+        elif angle <= 40:
+            self.steering = 8 * d
+        elif angle <= 60.0:
+            self.steering = 10 * d
+        elif angle <= 90.0:
+            self.steering = 15 * d
         else:
-            self.steering = 20 * int(direction)
+            self.steering = 20 * d
 
     def adjust_speed(self, waypoints: List[Waypoint]):
 
@@ -65,7 +78,16 @@ class PathPlanner:
         if not waypoints or self.pt.rotation is None:
             return
 
-        heading = calc_angle(begin=self.pt.current_position, end=waypoints[0].position)
+        current = self.pt.current_position
+        des = waypoints[0].position
+
+        dx = geopy.distance.distance((current[0], current[1]), (des[0], current[1])).m
+        dy = geopy.distance.distance((current[0], current[1]), (current[0], des[1])).m
+
+        dx *= 1 if des[0] > current[0] else -1
+        dy *= 1 if des[1] > current[1] else -1
+
+        heading = calc_angle(begin=(0, 0), end=(dx, dy))
 
         return heading
 

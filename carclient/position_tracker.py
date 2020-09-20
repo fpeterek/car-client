@@ -64,6 +64,8 @@ class PositionTracker:
         else:
             self.position_history.insert(0, pos)
 
+        print(f'Car heading: {self.rotation}')
+
         self.trim_hist()
         self.calc_rotation()
 

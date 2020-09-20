@@ -1,3 +1,5 @@
+import geopy.distance
+
 from typing import Tuple
 
 
@@ -8,12 +10,16 @@ class Waypoint:
         self.y = y
 
         # self.radius = 10
-        self.tolerance = 0.00010
+        # self.tolerance = 0.00002
+        self.tolerance = 2
 
     def point_inside(self, point: Tuple[float, float]) -> bool:
-        sx = self.x - point[0]
-        sy = self.y - point[1]
-        dist = (sx**2 + sy**2) ** 0.5
+
+        dist = geopy.distance.distance(self.position, point).m
+
+        # sx = self.x - point[0]
+        # sy = self.y - point[1]
+        # dist = (sx**2 + sy**2) ** 0.5
         return dist <= self.tolerance
 
     @property

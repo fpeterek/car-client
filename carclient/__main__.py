@@ -28,7 +28,7 @@ def follow_waypoints():
     vis.set_waypoints(waypoints)
 
     pt.disable_rotation()
-    for i in range(10):
+    for i in range(10, 0, -1):
         pos = position()
         pt.add(pos)
         vis.update_from_pt()
@@ -44,6 +44,8 @@ def follow_waypoints():
         planner.plan(waypoints)
         pt.enable_rotation()
         time.sleep(1.0)
+
+    planner.plan(waypoints)
 
     while True:
         pt.add(position())
