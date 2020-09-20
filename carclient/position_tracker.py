@@ -51,6 +51,9 @@ class PositionTracker:
         if len(self.position_history) < 2 or self.position_history[0] is None or self.last_pos is None:
             return
 
+        if self.current_position == self.last_pos:
+            return
+
         self._rotation = calc_angle(begin=self.last_pos, end=self.current_position)
 
     def add(self, pos: Tuple[float, float]):
