@@ -16,7 +16,7 @@ def follow_waypoints():
 
     waypoints = [
         Waypoint(18.1622607, 49.8358360),
-        Waypoint(18.1621518, 49.8356722)
+        Waypoint(18.1620518, 49.8356722)
         # Waypoint(18.1622303, 49.8356781),
         # Waypoint(18.1624181, 49.8356175),
         # Waypoint(49.8355103, 18.1625603),
@@ -28,7 +28,7 @@ def follow_waypoints():
     vis.set_waypoints(waypoints)
 
     pt.disable_rotation()
-    for i in range(10, 0, -1):
+    for i in range(1, 0, -1):
         pos = position()
         pt.add(pos)
         vis.update_from_pt()
@@ -43,7 +43,7 @@ def follow_waypoints():
         vis.poll_events()
         planner.plan(waypoints)
         pt.enable_rotation()
-        time.sleep(1.0)
+        time.sleep(0.1)
 
     planner.plan(waypoints)
 
@@ -68,14 +68,9 @@ def follow_qr():
 
 
 if __name__ == '__main__':
-    # pt = PositionTracker()
-    # for i in range(10):
-    #     pt.add(position())
-    #     print(pt.position_history[0])
-    #     time.sleep(1)
-    # print(pt.current_position)
-    # follow_waypoints()
 
-    print(camera_info())
-    follow_qr()
-    menu.menu()
+    try:
+        follow_waypoints()
+    except InterruptedError as e:
+        # Shutdown on ctrl+c or window closed
+        print('Shutting down as per user request')

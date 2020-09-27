@@ -27,9 +27,6 @@ class Visualizer:
         self.px = (self.map.right_bottom[0] - self.map.left_top[0]) / width
         self.py = (self.map.left_top[1] - self.map.right_bottom[1]) / height
 
-        # print(self.map.left_top, self.map.right_bottom)
-        # print(self.px, self.py)
-
         self.orig_car = pygame.transform.scale(pygame.image.load('resources/car.png'), (32, 15))
         self.car_image = self.orig_car
 
@@ -63,6 +60,11 @@ class Visualizer:
         x = (x - self.map.left_top[0]) / self.px
         y = self.height - (y - self.map.right_bottom[1]) / self.py
         return x, y
+
+    def cart_to_coords(self, x: float, y: float) -> Tuple[float, float]:
+        lon = self.map.left_top[0] + x * self.px
+        lat = self.map.right_bottom[1] + (self.height - y) * self.py
+        return lon, lat
 
     def redraw(self):
         self.screen.fill((255, 255, 255))
@@ -108,10 +110,16 @@ class Visualizer:
 
     def poll_events(self):
         for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_a:
+            if event.type == pygame.QUIT:
+                raise InterruptedError('Program closed by user')
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_a:
                 self.draw_adjusted = not self.draw_adjusted
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_s:
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_s:
                 self.draw_exact = not self.draw_exact
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                x, y = pygame.mouse.get_pos()
+                x, y = self.cart_to_coords(x, y)
+                self.waypoints.append(Waypoint(x, y))
 
 
 if __name__ == '__main__':
