@@ -1,7 +1,7 @@
 import time
 
 import menu
-from client import position
+from client import position, camera_info
 from path_planner import PathPlanner
 from position_tracker import PositionTracker
 from visualizer import Visualizer
@@ -54,6 +54,19 @@ def follow_waypoints():
         time.sleep(1.0)
 
 
+def follow_qr():
+    pt = PositionTracker()
+    planner = PathPlanner(pt)
+    vis = Visualizer(map_name='garage', pt=pt)
+
+    while True:
+        planner.plan_from_camera()
+        # pt.add(position())
+        time.sleep(0.2)
+        vis.update_from_pt()
+        vis.poll_events()
+
+
 if __name__ == '__main__':
     # pt = PositionTracker()
     # for i in range(10):
@@ -61,5 +74,8 @@ if __name__ == '__main__':
     #     print(pt.position_history[0])
     #     time.sleep(1)
     # print(pt.current_position)
-    follow_waypoints()
+    # follow_waypoints()
+
+    print(camera_info())
+    follow_qr()
     menu.menu()

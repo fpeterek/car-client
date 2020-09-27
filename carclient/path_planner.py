@@ -1,3 +1,5 @@
+import os
+import math
 from typing import List
 
 import geopy.distance
@@ -7,10 +9,13 @@ from position_tracker import PositionTracker
 from carutil import calc_angle
 from waypoint import Waypoint
 
-from client import drive
+from client import drive, camera_info
 
 
 class PathPlanner:
+
+    image_width = int(os.getenv('IMAGE_WIDTH'))
+    image_half = image_width / 2
 
     def __init__(self, pt: PositionTracker):
         self.desired_heading = 0.0
@@ -90,6 +95,26 @@ class PathPlanner:
         heading = calc_angle(begin=(0, 0), end=(dx, dy))
 
         return heading
+
+    def plan_from_camera(self):
+
+        s, c = camera_info()
+
+        sin = math.fabs(s/c)
+
+        if sin < 0 or sin > 1:
+            return
+
+        print(f'From camera {(s, c)}; sin={sin}')
+
+        deg = math.degrees(math.fabs(math.asin(sin)))
+
+        alpha = min(20, int(deg)) * (-1 if c < 0 else 1)
+        v = 100 if s > 2 else 0
+
+        print(f'Drive cmd: v={v}, alpha={alpha}')
+
+        # drive(v, int(alpha))
 
     def plan(self, waypoints: List[Waypoint]):
 

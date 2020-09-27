@@ -6,6 +6,8 @@ from car_info import CarInfo
 
 _host = os.getenv("SERVER_HOST")
 _port = int(os.getenv("SERVER_PORT"))
+_camera = os.getenv('CAMERA_HOST')
+_camera_port = int(os.getenv('CAMERA_PORT'))
 
 
 def _to_bytes(value: int, signed: bool = True) -> bytes:
@@ -81,3 +83,16 @@ def ebrake(val: bool) -> bool:
         sock.sendall(_MessageType.ebrake + _to_bytes(int(val)) + _padding)
 
         return bool(sock.recv(1)[0])
+
+
+def camera_info() -> Tuple[float, float]:
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.connect((_camera, _camera_port))
+
+        split = sock.recv(13).decode('utf-8').split(' ')
+        s = float(split[0]) / 100
+        sign = int(split[2])
+        c = int(split[1]) / 100 * (1, -1)[sign]
+
+        return s, c
