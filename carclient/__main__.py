@@ -3,6 +3,7 @@ import time
 import menu
 from client import position, camera_info
 from path_planner import PathPlanner
+from position_fetcher import PositionFetcher
 from position_tracker import PositionTracker
 from visualizer import Visualizer
 from waypoint import Waypoint
@@ -11,6 +12,7 @@ from waypoint import Waypoint
 def follow_waypoints():
 
     pt = PositionTracker()
+    pf = PositionFetcher(pt)
     planner = PathPlanner(pt)
     vis = Visualizer(map_name='garage', pt=pt)
 
@@ -29,16 +31,14 @@ def follow_waypoints():
 
     pt.disable_rotation()
     for i in range(1, 0, -1):
-        pos = position()
-        pt.add(pos)
+        pf.fetch()
         vis.update_from_pt()
         vis.poll_events()
         print(i)
         time.sleep(1.0)
 
     while waypoints:
-        pos = position()
-        pt.add(pos)
+        pf.fetch()
         vis.update_from_pt()
         vis.poll_events()
         planner.plan(waypoints)
@@ -48,7 +48,7 @@ def follow_waypoints():
     planner.plan(waypoints)
 
     while True:
-        pt.add(position())
+        pf.fetch()
         vis.update_from_pt()
         vis.poll_events()
         time.sleep(1.0)
