@@ -3,11 +3,11 @@ class CarInfo:
     steer_left = -20
     steer_right = 20
 
-    max_v = 100
-    min_v = -100
+    max_v = 30 / 3.6
+    min_v = -30 / 3.6
 
     @staticmethod
-    def bound_v(v: int) -> int:
+    def bound_v(v: float) -> float:
         return max(min(v, CarInfo.max_v), CarInfo.min_v)
 
     @staticmethod

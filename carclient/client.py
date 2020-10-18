@@ -32,7 +32,7 @@ def drive(velocity: int, steering_angle: int) -> bool:
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.connect((_host, _port))
-        sock.sendall(_MessageType.drive + _to_bytes(velocity) + _to_bytes(steering_angle))
+        sock.sendall(_MessageType.drive + _to_bytes(int(velocity * 10)) + _to_bytes(steering_angle))
 
         return bool(sock.recv(1)[0])
 
@@ -54,7 +54,7 @@ def info() -> Tuple[int, int, bool]:
 
         data = sock.recv(3)
 
-        v = int.from_bytes(data[0:1], 'little', signed=True)
+        v = int.from_bytes(data[0:1], 'little', signed=True) / 10
         s = int.from_bytes(data[1:2], 'little', signed=True)
         b = bool(int.from_bytes(data[2:3], 'little', signed=True))
 

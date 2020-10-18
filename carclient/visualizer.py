@@ -121,6 +121,10 @@ class Visualizer:
                 x, y = self.cart_to_coords(x, y)
                 self.waypoints.append(Waypoint(x, y))
 
+    def update(self):
+        self.update_from_pt()
+        self.poll_events()
+
 
 if __name__ == '__main__':
     pt = PositionTracker()

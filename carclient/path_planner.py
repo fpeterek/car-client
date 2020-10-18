@@ -4,6 +4,7 @@ from typing import List
 
 import geopy.distance
 
+from car_info import CarInfo
 from direction import Direction
 from position_tracker import PositionTracker
 from carutil import calc_angle
@@ -77,7 +78,7 @@ class PathPlanner:
             waypoints.pop(0)
 
         if waypoints:
-            self.velocity = 100
+            self.velocity = CarInfo.max_v / 3
 
     @staticmethod
     def calc_des_heading(current, des):
