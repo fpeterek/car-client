@@ -18,7 +18,9 @@ class PositionFetcher:
     def should_fetch(self):
         return self.current_time >= (self.last_update + self.interval)
 
-    def fetch(self):
+    def fetch(self) -> bool:
         if self.should_fetch:
             self.pt.add(position())
             self.last_update = self.current_time
+            return True
+        return False

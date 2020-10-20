@@ -96,8 +96,8 @@ class Visualizer:
         pygame.display.flip()
 
     def update_from_pt(self):
-        if self.pt.position_history:
-            hist = self.pt.position_history[0]
+        if self.pt.prediction is not None:
+            hist = self.pt.prediction  # self.pt.position_history[0]
             if hist is None:
                 return self.redraw()
             self.points.append(self.coords_to_cart(hist[0], hist[1]))

@@ -1,3 +1,4 @@
+import time
 from typing import Tuple
 
 from carutil import calc_angle
@@ -12,6 +13,18 @@ class PositionTracker:
         self.position_history = []
         self._rotation = None
         self.rotation_enabled = True
+        self.last_updated = PositionTracker.time()
+        self.prediction = None
+        self.rotation_prediction = None
+        self.last_prediction = PositionTracker.time()
+
+    @staticmethod
+    def time():
+        return time.time_ns() / 10**9
+
+    @property
+    def time_since_update(self):
+        return PositionTracker.time() - self.last_updated
 
     def enable_rotation(self):
         self.rotation_enabled = True
@@ -58,6 +71,7 @@ class PositionTracker:
 
     def add(self, pos: Tuple[float, float]):
         self.last_pos = self.current_position
+        self.last_updated = PositionTracker.time()
 
         if self.position_history and self.position_history[0] is None:
             self.position_history[0] = pos
@@ -69,15 +83,9 @@ class PositionTracker:
         self.trim_hist()
         self.calc_rotation()
 
+        self.update_prediction(self.current_position, self._rotation)
 
-
-
-
-
-
-
-
-
-
-
-
+    def update_prediction(self, position, rotation):
+        self.prediction = position
+        self.rotation_prediction = rotation
+        self.last_prediction = PositionTracker.time()

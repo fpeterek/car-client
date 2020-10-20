@@ -19,7 +19,8 @@ class CarController:
         self.set_waypoints([])
 
     def update_position(self) -> None:
-        self.pf.fetch()
+        if not self.pf.fetch():
+            self.planner.predict_position()
 
     def set_waypoints(self, waypoints: List[Waypoint]) -> None:
         self.waypoints = waypoints
