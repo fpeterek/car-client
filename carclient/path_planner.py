@@ -80,6 +80,10 @@ class PathPlanner:
         if waypoints:
             self.velocity = CarInfo.max_v / 3
 
+        if len(waypoints) == 1:
+            distance = geopy.distance.distance(self.pt.current_position, waypoints[0].position)
+            self.velocity = min(CarInfo.max_v / 3, distance / 2)
+
     @staticmethod
     def calc_des_heading(current, des):
         dx = geopy.distance.distance((current[0], current[1]), (des[0], current[1])).m

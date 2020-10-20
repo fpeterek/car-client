@@ -7,6 +7,11 @@ class CarInfo:
     min_v = -30 / 3.6
 
     @staticmethod
+    @property
+    def reasonable_v() -> float:
+        return 10 / 3.6
+
+    @staticmethod
     def bound_v(v: float) -> float:
         return max(min(v, CarInfo.max_v), CarInfo.min_v)
 
