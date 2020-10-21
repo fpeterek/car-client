@@ -46,7 +46,7 @@ def healthcheck() -> bool:
         return bool(sock.recv(1)[0])
 
 
-def info() -> Tuple[int, int, bool]:
+def info() -> Tuple[float, int, bool]:
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.connect((_host, _port))

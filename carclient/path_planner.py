@@ -10,7 +10,7 @@ from position_tracker import PositionTracker
 from carutil import calc_angle
 from waypoint import Waypoint
 
-from client import drive, camera_info
+from client import drive, camera_info, info
 
 
 class PathPlanner:
@@ -40,8 +40,7 @@ class PathPlanner:
         if self.pt.prediction is None or self.pt.rotation_prediction is None:
             return
 
-        v = self.velocity
-        s = self.steering
+        v, s, _ = info()
         dt = PositionTracker.time() - self.pt.last_prediction
 
         # Predict rotation
@@ -51,12 +50,14 @@ class PathPlanner:
 
         # Predict position
         curr = self.pt.prediction
+        curr_rad = math.radians(curr_r)
         ds = v * dt
-        dx = ds * math.cos(curr_r)
-        dy = ds * math.sin(curr_r)
-        x, y = curr[0] + dx, curr[1] + dy
+        dx = ds * math.cos(curr_rad)
+        dy = ds * math.sin(curr_rad)
+        y = curr[1] + dy / 6_378_000 * 180 / math.pi
+        x = curr[0] + (dx / 6_378_000 * 180 / math.pi) / math.cos(math.radians(curr[1]))
 
-        self.pt.update_prediction((x, y), self.pt.rotation_prediction)
+        self.pt.update_prediction((x, y), curr_r)
 
     def adjust_steering(self):
 
