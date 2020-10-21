@@ -1,6 +1,6 @@
 import os
 import math
-from typing import List
+from typing import List, Tuple, Optional
 
 import geopy.distance
 
@@ -19,6 +19,7 @@ class PathPlanner:
     image_half = image_width / 2
 
     def __init__(self, pt: PositionTracker):
+        self.waypoints = []
         self.desired_heading = 0.0
         self.pt = pt
         self.steering = 0.0
@@ -59,6 +60,33 @@ class PathPlanner:
 
         self.pt.update_prediction((x, y), curr_r)
 
+    def predict_future(self) -> Optional[Tuple[Tuple[float, float], float]]:
+        if self.pt.prediction is None or self.pt.rotation_prediction is None:
+            return
+
+        v, s, _ = info()
+        dt = 0.1
+
+        last_r = self.pt.rotation_prediction
+        last_pos = self.pt.prediction
+
+        for i in range(1, 21):
+
+            dr = (s * dt * (v / CarInfo.max_v * 4))
+            last_r = (last_r + dr) % 360.0
+
+            # Predict position
+            curr = last_pos
+            curr_rad = math.radians(last_r)
+            ds = v * dt
+            dx = ds * math.cos(curr_rad)
+            dy = ds * math.sin(curr_rad)
+            y = curr[1] + dy / 6_378_000 * 180 / math.pi
+            x = curr[0] + (dx / 6_378_000 * 180 / math.pi) / math.cos(math.radians(curr[1]))
+            last_pos = (x, y)
+
+        return last_pos, last_r
+
     def adjust_steering(self):
 
         if self.pt.rotation_prediction is None:
@@ -66,9 +94,13 @@ class PathPlanner:
             return
 
         angle = PathPlanner.calc_angle(cur=self.pt.rotation_prediction, des=self.desired_heading)
-        print('Pred:', self.pt.rotation_prediction)
-        # print('Desired diff:', angle)
         direction = [Direction.LEFT, Direction.RIGHT][angle > 0]
+
+        if angle > 10.0:
+            pred_pos, pred_r = self.predict_future()
+            pred_des_heading = self.calc_desired_heading(pred_pos, self.waypoints)
+            if pred_des_heading - 5 < pred_r < pred_des_heading + 5:
+                angle += PathPlanner.calc_angle(cur=pred_r, des=pred_des_heading)
 
         angle = abs(angle)
         d = int(direction)
@@ -126,11 +158,11 @@ class PathPlanner:
 
         return heading
 
-    def calc_curve(self, waypoints):
+    def calc_curve(self, current_pos, waypoints):
         if len(waypoints) < 2:
             return self.calc_linear(waypoints)
 
-        current = self.pt.prediction
+        current = current_pos  # self.pt.prediction
         p1 = waypoints[0].position
         p2 = waypoints[1].position
 
@@ -150,8 +182,8 @@ class PathPlanner:
 
         return h1 * ratio + h2 * (1 - ratio)
 
-    def calc_desired_heading(self, waypoints):
-        return self.calc_curve(waypoints)
+    def calc_desired_heading(self, current_pos, waypoints):
+        return self.calc_curve(current_pos, waypoints)
 
     def plan_from_camera(self):
 
@@ -175,6 +207,7 @@ class PathPlanner:
 
     def plan(self, waypoints: List[Waypoint]):
 
+        self.waypoints = waypoints
         car_pos = self.pt.prediction
 
         if not waypoints or car_pos is None:
@@ -182,7 +215,7 @@ class PathPlanner:
             self.steering = 0.0
             return drive(int(self.velocity), int(self.steering))
 
-        self.desired_heading = self.calc_desired_heading(waypoints)
+        self.desired_heading = self.calc_desired_heading(car_pos, waypoints)
 
         self.adjust_steering()
         self.adjust_speed(waypoints)
