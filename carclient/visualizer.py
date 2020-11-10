@@ -6,15 +6,17 @@ import pygame
 from position_tracker import PositionTracker
 from vmap import Map
 from waypoint import Waypoint
+from map.map import Map as OSMap
 
 
 class Visualizer:
 
     draw_car = True
 
-    def __init__(self, map_name: str, pt: PositionTracker):
+    def __init__(self, map_name: str, pt: PositionTracker, osmap: OSMap = None):
 
         self.map = Map.get_map(map_name)
+        self.osmap = osmap
 
         ratio = self.map.img.get_height() / self.map.img.get_width()
         width = 1000
@@ -78,6 +80,17 @@ class Visualizer:
         if self.draw_adjusted:
             for point in self.adjusted:
                 pygame.draw.circle(self.screen, (66, 135, 245), (point[0], point[1]), 1)
+
+        if self.osmap is not None:
+            for vector in self.osmap.vectors:
+                begin = self.coords_to_cart(vector.begin.lon, vector.begin.lat)
+                end = self.coords_to_cart(vector.end.lon, vector.end.lat)
+                pygame.draw.line(self.screen, (66, 135, 245), begin, end, 2)
+
+            for node in self.osmap.nodes:
+                pos = self.coords_to_cart(node.lon, node.lat)
+                pygame.draw.circle(self.screen, (13, 70, 161), pos, 4)
+                pygame.draw.circle(self.screen, (66, 135, 245), pos, 2)
 
         for wp in self.waypoints:
             x, y = self.coords_to_cart(wp.x, wp.y)
