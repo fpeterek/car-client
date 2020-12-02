@@ -7,6 +7,7 @@ from position_tracker import PositionTracker
 from vmap import Map
 from waypoint import Waypoint
 from map.map import Map as OSMap
+from map.position import Position
 
 
 class Visualizer:
@@ -91,6 +92,15 @@ class Visualizer:
                 pos = self.coords_to_cart(node.lon, node.lat)
                 pygame.draw.circle(self.screen, (13, 70, 161), pos, 4)
                 pygame.draw.circle(self.screen, (66, 135, 245), pos, 2)
+
+        if self.osmap is not None:
+            car_pos = self.pt.position_history[0]
+            car_pos = Position(lat=car_pos[1], lon=car_pos[0])
+            for vector in self.osmap.vectors:
+                shortest = car_pos.shortest_path(vector)
+                begin = self.coords_to_cart(shortest.begin.lon, shortest.begin.lat)
+                end = self.coords_to_cart(shortest.end.lon, shortest.end.lat)
+                pygame.draw.line(self.screen, (245, 117, 66), begin, end, 2)
 
         for wp in self.waypoints:
             x, y = self.coords_to_cart(wp.x, wp.y)

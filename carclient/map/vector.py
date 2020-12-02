@@ -1,10 +1,25 @@
-from geopy import distance
+from typing import Tuple
 
-from map.position import Position
+from geopy import distance
 
 
 class Vector:
-    def __init__(self, begin: Position, end: Position):
+
+    def _to_meters(self) -> Tuple[float, float]:
+        begin = self.begin.lat, self.begin.lon
+        end1 = self.begin.lat, self.end.lon
+        end2 = self.end.lat, self.begin.lon
+
+        mx = distance.distance(begin, end1).m
+        my = distance.distance(begin, end2).m
+
+        return mx, my
+
+    def __init__(self, begin, end):
         self.begin = begin
         self.end = end
         self.dist = distance.distance(begin.tuple, end.tuple).m
+
+        self.m_begin = (0, 0)
+        self.m_end = self._to_meters()
+        self.m_normal = -self.m_end[1], self.m_end[0]

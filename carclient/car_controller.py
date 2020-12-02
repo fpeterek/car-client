@@ -39,8 +39,9 @@ class CarController:
     def follow_waypoints(self) -> None:
 
         self.set_waypoints([
-            Waypoint(18.1622607, 49.8358360),
-            Waypoint(18.1620518, 49.8356722)
+            # Waypoint(18.1622607, 49.8358360),
+            # Waypoint(18.1620518, 49.8356722)
+
             # Waypoint(18.1622303, 49.8356781),
             # Waypoint(18.1624181, 49.8356175),
             # Waypoint(49.8355103, 18.1625603),
