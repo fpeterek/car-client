@@ -52,13 +52,11 @@ class Position:
 
         if x_int_begin <= ix <= x_int_end and y_int_begin <= iy <= y_int_end:
 
-            dx, dy = ix - begin_vector.m_end[0], iy - begin_vector.m_end[1]
+            dx, dy = ix - x_int_begin, iy - y_int_begin
 
-            begin = Position(lat=self.lat, lon=self.lon)
-            end = add_meters((begin.lat, begin.lon), (dx, dy))
-            end = Position(lat=end[1], lon=end[0])
-            print(begin, end)
-            return Vector(begin=begin, end=end)
+            end = add_meters((self.lat, self.lon), (dx, dy))
+            end = Position(lat=end[0], lon=end[1])
+            return Vector(begin=self, end=end)
 
-        return min(begin_vector, end_vector, key=lambda vec: vec.dist)
+        # return min(begin_vector, end_vector, key=lambda vec: vec.dist)
 

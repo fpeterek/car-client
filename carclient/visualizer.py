@@ -98,9 +98,15 @@ class Visualizer:
             car_pos = Position(lat=car_pos[1], lon=car_pos[0])
             for vector in self.osmap.vectors:
                 shortest = car_pos.shortest_path(vector)
+                if shortest is None:
+                    continue
                 begin = self.coords_to_cart(shortest.begin.lon, shortest.begin.lat)
                 end = self.coords_to_cart(shortest.end.lon, shortest.end.lat)
                 pygame.draw.line(self.screen, (245, 117, 66), begin, end, 2)
+
+                begin = self.coords_to_cart(vector.begin.lon, vector.begin.lat)
+                end = self.coords_to_cart(vector.end.lon, vector.end.lat)
+                pygame.draw.line(self.screen, (245, 117, 66), begin, end, 3)
 
         for wp in self.waypoints:
             x, y = self.coords_to_cart(wp.x, wp.y)

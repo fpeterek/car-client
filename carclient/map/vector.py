@@ -13,6 +13,9 @@ class Vector:
         mx = distance.distance(begin, end1).m
         my = distance.distance(begin, end2).m
 
+        mx = mx * (1 if self.end.lon > self.begin.lon else -1)
+        my = my * (1 if self.end.lat > self.begin.lat else -1)
+
         return mx, my
 
     def __init__(self, begin, end):
