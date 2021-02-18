@@ -1,14 +1,18 @@
 import time
-from typing import Tuple
+from typing import Tuple, Optional
 
 from carutil import calc_angle
+
+from map.map import Map
+from map.position import Position
+from map.vector import Vector
 
 
 class PositionTracker:
 
     hist_len = 10
 
-    def __init__(self):
+    def __init__(self, osmap: Map):
         self.last_pos = None
         self.position_history = []
         self._rotation = None
@@ -17,6 +21,7 @@ class PositionTracker:
         self.prediction = None
         self.rotation_prediction = None
         self.last_prediction = PositionTracker.time()
+        self.osmap = osmap
 
     @staticmethod
     def time():
@@ -89,3 +94,33 @@ class PositionTracker:
         self.prediction = position
         self.rotation_prediction = rotation
         self.last_prediction = PositionTracker.time()
+
+    @property
+    def closest_shortest_pair(self) -> Optional[Tuple[Vector, Vector]]:
+        if self.last_pos is None:
+            return None
+
+        osm_pos = Position(lat=self.last_pos[1], lon=self.last_pos[0])
+
+        closest_path = None
+        shortest_distance = None
+        length = None
+        for v in self.osmap.vectors:
+            path = osm_pos.shortest_path(v)
+            if path is None:
+                continue
+            if length is None or path.dist < length:
+                shortest_distance = path
+                closest_path = v
+                length = path.dist
+        return closest_path, shortest_distance
+
+    @property
+    def closest_path(self) -> Optional[Vector]:
+        pair = self.closest_shortest_pair
+        return pair[0] if pair is not None else None
+
+    @property
+    def shortest_distance(self) -> Optional[Vector]:
+        pair = self.closest_shortest_pair
+        return pair[1] if pair is not None else None

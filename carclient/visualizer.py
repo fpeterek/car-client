@@ -93,19 +93,33 @@ class Visualizer:
                 pygame.draw.circle(self.screen, (13, 70, 161), pos, 4)
                 pygame.draw.circle(self.screen, (66, 135, 245), pos, 2)
 
+        # if self.osmap is not None:
+        #     car_pos = self.pt.position_history[0]
+        #     car_pos = Position(lat=car_pos[1], lon=car_pos[0])
+        #     for vector in self.osmap.vectors:
+        #         shortest = car_pos.shortest_path(vector)
+        #         if shortest is None:
+        #             continue
+        #         begin = self.coords_to_cart(shortest.begin.lon, shortest.begin.lat)
+        #         end = self.coords_to_cart(shortest.end.lon, shortest.end.lat)
+        #         pygame.draw.line(self.screen, (245, 117, 66), begin, end, 2)
+        #
+        #         begin = self.coords_to_cart(vector.begin.lon, vector.begin.lat)
+        #         end = self.coords_to_cart(vector.end.lon, vector.end.lat)
+        #         pygame.draw.line(self.screen, (245, 117, 66), begin, end, 3)
+
         if self.osmap is not None:
-            car_pos = self.pt.position_history[0]
-            car_pos = Position(lat=car_pos[1], lon=car_pos[0])
-            for vector in self.osmap.vectors:
-                shortest = car_pos.shortest_path(vector)
-                if shortest is None:
-                    continue
-                begin = self.coords_to_cart(shortest.begin.lon, shortest.begin.lat)
-                end = self.coords_to_cart(shortest.end.lon, shortest.end.lat)
+            pair = self.pt.closest_shortest_pair
+
+            if pair is not None:
+                closest_path, shortest_dist = pair
+
+                begin = self.coords_to_cart(shortest_dist.begin.lon, shortest_dist.begin.lat)
+                end = self.coords_to_cart(shortest_dist.end.lon, shortest_dist.end.lat)
                 pygame.draw.line(self.screen, (245, 117, 66), begin, end, 2)
 
-                begin = self.coords_to_cart(vector.begin.lon, vector.begin.lat)
-                end = self.coords_to_cart(vector.end.lon, vector.end.lat)
+                begin = self.coords_to_cart(closest_path.begin.lon, closest_path.begin.lat)
+                end = self.coords_to_cart(closest_path.end.lon, closest_path.end.lat)
                 pygame.draw.line(self.screen, (245, 117, 66), begin, end, 3)
 
         for wp in self.waypoints:
@@ -156,7 +170,7 @@ class Visualizer:
 
 
 if __name__ == '__main__':
-    pt = PositionTracker()
+    pt = PositionTracker(osmap=None)
     vis = Visualizer('garage', pt)
     files = ['geodoma', 'geohrbitov', 'geolouky', 'geoolsina', 'geoolsinaauto',
              'geoolsinazahradni', 'garage', 'waypoint1', 'waypoint2', 'waypointstart']

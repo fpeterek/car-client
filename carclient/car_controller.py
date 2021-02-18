@@ -14,7 +14,7 @@ class CarController:
 
     def __init__(self, map_name='campus'):
         self.map = MapLoader.load(path='resources/campus.osm')
-        self.pt = PositionTracker()
+        self.pt = PositionTracker(osmap=self.map)
         self.pf = PositionFetcher(self.pt)
         self.planner = PathPlanner(self.pt)
         self.vis = Visualizer(map_name=map_name, pt=self.pt, osmap=self.map)
