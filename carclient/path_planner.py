@@ -7,7 +7,7 @@ import geopy.distance
 from car_info import CarInfo
 from direction import Direction
 from position_tracker import PositionTracker
-from carutil import calc_angle
+from util.util import calc_angle
 from waypoint import Waypoint
 
 from client import drive, camera_info, info

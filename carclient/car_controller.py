@@ -1,5 +1,5 @@
 import time
-from typing import List
+from typing import List, Optional
 
 from path_planner import PathPlanner
 from position_fetcher import PositionFetcher
@@ -18,12 +18,15 @@ class CarController:
         self.pf = PositionFetcher(self.pt)
         self.planner = PathPlanner(self.pt)
         self.vis = Visualizer(map_name=map_name, pt=self.pt, osmap=self.map)
-        self.waypoints = None
+        self.waypoints: Optional[List[Waypoint]] = None
         self.set_waypoints([])
 
     def update_position(self) -> None:
         if not self.pf.fetch():
             self.planner.predict_position()
+
+    def add_waypoint(self, waypoint: Waypoint) -> None:
+        self.waypoints.append(waypoint)
 
     def set_waypoints(self, waypoints: List[Waypoint]) -> None:
         self.waypoints = waypoints

@@ -1,3 +1,5 @@
+import json
+
 import geopy.distance
 
 from typing import Tuple
@@ -25,3 +27,14 @@ class Waypoint:
     @property
     def position(self) -> Tuple[float, float]:
         return self.x, self.y
+
+    @property
+    def json(self):
+        return json.dumps(self.dict)
+
+    @property
+    def dict(self):
+        return {
+            'latitude': self.y,
+            'longitude': self.x
+        }
