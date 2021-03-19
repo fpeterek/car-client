@@ -7,7 +7,9 @@ import api
 if __name__ == '__main__':
     try:
         controller = CarController()
-        Thread(target=lambda: api.init(controller)).start()
+        thread: Thread = Thread(target=lambda: api.init(controller))
+        thread.setDaemon(True)
+        thread.start()
         controller.follow_waypoints()
     except InterruptedError as e:
         # Shutdown on ctrl+c or window closed
