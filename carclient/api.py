@@ -7,6 +7,7 @@ from flask import Flask, request
 from car_controller import CarController
 from waypoint import Waypoint
 
+
 controller: Optional[CarController] = None
 
 app = Flask('CarApi')
@@ -42,17 +43,20 @@ def get_waypoints():
     return json.dumps(waypoints_list())
 
 
-def post_waypoint() -> None:
+def post_waypoint() -> str:
     post = request.get_json() if request.is_json else json.loads(request.get_data())
     lat = post['latitude']
     lon = post['longitude']
     controller.add_waypoint(Waypoint(x=lon, y=lat))
+    return '{"status": "success"}'
 
 
-def delete_waypoint() -> None:
-    post = request.get_json() if request.is_json else json.loads(request.get_data())
-    index = post['index']
-    controller.waypoints.pop(index)
+def delete_waypoint() -> str:
+    index = request.args.get('index')
+    if index is not None and str(index).isnumeric():
+        controller.waypoints.pop(int(index))
+        return '{"status": "success"}'
+    return '{"status": "failure"}'
 
 
 @app.route('/waypoints', methods=['GET', 'POST', 'DELETE'])
