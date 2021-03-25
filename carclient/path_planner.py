@@ -7,7 +7,7 @@ import geopy.distance
 from car_info import CarInfo
 from direction import Direction
 from position_tracker import PositionTracker
-from util.util import calc_angle
+from util.util import calc_angle_lonlat
 from waypoint import Waypoint
 
 from client import drive, camera_info, info
@@ -139,13 +139,14 @@ class PathPlanner:
 
     @staticmethod
     def calc_des_heading(current, des):
-        dx = geopy.distance.distance((current[0], current[1]), (des[0], current[1])).m
-        dy = geopy.distance.distance((current[0], current[1]), (current[0], des[1])).m
+        return calc_angle_lonlat(current, des)
+        # dx = geopy.distance.distance((current[0], current[1]), (des[0], current[1])).m
+        # dy = geopy.distance.distance((current[0], current[1]), (current[0], des[1])).m
 
-        dx *= 1 if des[0] > current[0] else -1
-        dy *= 1 if des[1] > current[1] else -1
+        # dx *= 1 if des[0] > current[0] else -1
+        # dy *= 1 if des[1] > current[1] else -1
 
-        return calc_angle(begin=(0, 0), end=(dx, dy))
+        # return calc_angle_meters(begin=(0, 0), end=(dx, dy))
 
     def calc_linear(self, waypoints):
         if not waypoints or self.pt.rotation_prediction is None:

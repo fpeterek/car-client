@@ -1,7 +1,7 @@
 import time
 from typing import Tuple, Optional
 
-from util.util import calc_angle
+from util.util import calc_angle_lonlat
 
 from map.map import Map
 from map.position import Position
@@ -72,7 +72,7 @@ class PositionTracker:
         if self.current_position == self.last_pos:
             return
 
-        self._rotation = calc_angle(begin=self.last_pos, end=self.current_position)
+        self._rotation = calc_angle_lonlat(begin=self.last_pos, end=self.current_position)
 
     def add(self, pos: Tuple[float, float]):
         self.last_pos = self.current_position
@@ -83,10 +83,10 @@ class PositionTracker:
         else:
             self.position_history.insert(0, pos)
 
-        print(f'Car heading: {self.rotation}')
-
         self.trim_hist()
         self.calc_rotation()
+
+        print(f'Car heading: {self.rotation}')
 
         self.update_prediction(self.current_position, self._rotation)
 
