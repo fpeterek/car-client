@@ -6,9 +6,9 @@ from geopy import distance
 
 # https://en.wikipedia.org/wiki/Line-line_intersection
 def find_intersection(x1, y1, x2, y2, x3, y3, x4, y4) -> Tuple[float, float]:
-    px = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / (
+    px = ((x1*y2 - y1*x2) * (x3 - x4) - (x1 - x2) * (x3*y4 - y3*x4)) / (
                 (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4))
-    py = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / (
+    py = ((x1*y2 - y1*x2) * (y3 - y4) - (y1 - y2) * (x3*y4 - y3*x4)) / (
                 (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4))
 
     return px, py
@@ -41,10 +41,6 @@ def calc_angle_meters(begin: Tuple[float, float], end: Tuple[float, float]) -> f
 
 def calc_angle_lonlat(begin: Tuple[float, float], end: Tuple[float, float]) -> float:
 
-    # begin = begin[1], begin[0]  # args are lonlat pairs, we want to work with latlon
-    # end = end[1], end[0]
-
-
     equal_x = begin[0], end[1]
     equal_y = end[0], begin[1]
 
@@ -52,7 +48,5 @@ def calc_angle_lonlat(begin: Tuple[float, float], end: Tuple[float, float]) -> f
     mx = mx if begin[0] < end[0] else -mx
     my = distance.distance(begin, equal_x).m
     my = my if begin[1] < end[1] else -my
-
-    print(mx, my)
 
     return calc_angle_meters((0, 0), (mx, my))

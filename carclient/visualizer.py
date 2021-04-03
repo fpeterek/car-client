@@ -7,7 +7,6 @@ from position_tracker import PositionTracker
 from vmap import Map
 from waypoint import Waypoint
 from map.map import Map as OSMap
-from map.position import Position
 
 
 class Visualizer:
@@ -83,7 +82,7 @@ class Visualizer:
                 pygame.draw.circle(self.screen, (66, 135, 245), (point[0], point[1]), 1)
 
         if self.osmap is not None:
-            for vector in self.osmap.vectors:
+            for vector in self.osmap.paths:
                 begin = self.coords_to_cart(vector.begin.lon, vector.begin.lat)
                 end = self.coords_to_cart(vector.end.lon, vector.end.lat)
                 pygame.draw.line(self.screen, (66, 135, 245), begin, end, 2)
@@ -199,9 +198,7 @@ if __name__ == '__main__':
     ]
 
     vis.set_waypoints(waypoints)
-
     vis.load_csv(files[-1])
-    print(pt.current_position)
 
     while True:
         vis.poll_events()

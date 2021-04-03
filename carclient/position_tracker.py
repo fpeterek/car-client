@@ -5,7 +5,7 @@ from util.util import calc_angle_lonlat
 
 from map.map import Map
 from map.position import Position
-from map.vector import Vector
+from map.path import Path
 
 
 class PositionTracker:
@@ -42,7 +42,7 @@ class PositionTracker:
         return self._rotation if self.rotation_enabled else None
 
     @property
-    def current_position(self):
+    def current_position(self) -> Optional[Tuple[float, float]]:
         if not self.position_history or self.position_history[0] is None:
             return None
 
@@ -65,14 +65,22 @@ class PositionTracker:
         if len(self.position_history) > PositionTracker.hist_len:
             self.position_history = self.position_history[0:-1]
 
+    @staticmethod
+    def _round_position(lonlat: Tuple[float, float]) -> Tuple[float, float]:
+        return int(lonlat[0] * 10**6) / 10**6, int(lonlat[1] * 10**6) / 10**6
+
     def calc_rotation(self):
         if len(self.position_history) < 2 or self.position_history[0] is None or self.last_pos is None:
             return
 
-        if self.current_position == self.last_pos:
+        # Round positions to avoid floating point number inaccuracies and errors
+        current = PositionTracker._round_position(self.current_position)
+        last = PositionTracker._round_position(self.last_pos)
+
+        if current == last:
             return
 
-        self._rotation = calc_angle_lonlat(begin=self.last_pos, end=self.current_position)
+        self._rotation = calc_angle_lonlat(begin=last, end=current)
 
     def add(self, pos: Tuple[float, float]):
         self.last_pos = self.current_position
@@ -96,7 +104,7 @@ class PositionTracker:
         self.last_prediction = PositionTracker.time()
 
     @property
-    def closest_shortest_pair(self) -> Optional[Tuple[Vector, Vector]]:
+    def closest_shortest_pair(self) -> Optional[Tuple[Path, Path]]:
         if self.last_pos is None:
             return None
 
@@ -105,7 +113,7 @@ class PositionTracker:
         closest_path = None
         shortest_distance = None
         length = None
-        for v in self.osmap.vectors:
+        for v in self.osmap.paths:
             path = osm_pos.shortest_path(v)
             if path is None:
                 continue
@@ -116,11 +124,11 @@ class PositionTracker:
         return closest_path, shortest_distance
 
     @property
-    def closest_path(self) -> Optional[Vector]:
+    def closest_path(self) -> Optional[Path]:
         pair = self.closest_shortest_pair
         return pair[0] if pair is not None else None
 
     @property
-    def shortest_distance(self) -> Optional[Vector]:
+    def shortest_distance(self) -> Optional[Path]:
         pair = self.closest_shortest_pair
         return pair[1] if pair is not None else None

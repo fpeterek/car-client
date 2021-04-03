@@ -3,7 +3,7 @@ from typing import Tuple
 from geopy import distance
 
 
-class Vector:
+class Path:
 
     def _to_meters(self) -> Tuple[float, float]:
         begin = self.begin.lat, self.begin.lon
@@ -18,11 +18,18 @@ class Vector:
 
         return mx, my
 
+    @property
+    def reversed(self):
+        return Path(begin=self.end, end=self.begin)
+
     def __init__(self, begin, end):
         self.begin = begin
         self.end = end
-        self.dist = distance.distance(begin.tuple, end.tuple).m
+        self.dist: float = distance.distance(begin.lonlat, end.lonlat).m
 
-        self.m_begin = (0, 0)
-        self.m_end = self._to_meters()
-        self.m_normal = -self.m_end[1], self.m_end[0]
+        self.m_begin: Tuple[float, float] = (0, 0)
+        self.m_end: Tuple[float, float] = self._to_meters()
+        self.m_normal: Tuple[float, float] = -self.m_end[1], self.m_end[0]
+
+    def __hash__(self):
+        return hash((self.begin, self.end))

@@ -13,7 +13,7 @@ from map.map_loader import MapLoader
 class CarController:
 
     def __init__(self, map_name='campus'):
-        self.map = MapLoader.load(path='resources/campus.osm')
+        self.map = MapLoader.load(path='resources/campus.json')
         self.pt = PositionTracker(osmap=self.map)
         self.pf = PositionFetcher(self.pt)
         self.planner = PathPlanner(self.pt)

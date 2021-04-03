@@ -1,72 +1,42 @@
-import osmium
+import json
 
 from map.map import Map
 from map.node import Node
 from map.position import Position
-from map.vector import Vector
-
-
-class MapLoaderHandler(osmium.SimpleHandler):
-    excluded_ways = ('footway', 'corridor', 'sidewalks', 'steps', 'crossing')
-
-    def __init__(self):
-        super(MapLoaderHandler, self).__init__()
-        self.map = Map()
-
-    def node(self, n):
-        position = Position(lon=n.location.lon, lat=n.location.lat)
-        node = Node(pos=position)
-        self.map.add_node(node)
-
-    def way(self, way):
-        if not way.nodes or 'highway' not in way.tags or way.is_closed():
-            return
-        if way.tags['highway'] in MapLoaderHandler.excluded_ways:
-            return
-        previous = way.nodes[0]
-
-        for i in range(1, len(way.nodes)):
-            current = way.nodes[i]
-
-            begin = Position(lon=previous.lon, lat=previous.lat)
-            end = Position(lon=current.lon, lat=current.lat)
-
-            vector = Vector(begin=begin, end=end)
-            self.map.add_vector(vector)
-
-            previous = current
-
-    def relation(self, way):
-        """noop -> There's no need to handle relations, at least not now"""
+from map.path import Path
 
 
 class MapLoader:
-    def __init__(self):
-        pass
 
     @staticmethod
-    def remove_unnecessary_nodes(map: Map):
-        map.nodes = {node: node for node in map.nodes if node.vectors}
-        return map
+    def parse_position(position: dict) -> Position:
+        return Position(lat=position["lat"], lon=position["lon"])
+
+    @staticmethod
+    def parse_nodes(m: Map, nodes: list) -> None:
+        for node in nodes:
+            position = MapLoader.parse_position(node["position"])
+            m.add_node(Node(pos=position))
+
+    @staticmethod
+    def parse_paths(m: Map, paths: list) -> None:
+        for path in paths:
+            begin = MapLoader.parse_position(path["begin"])
+            end = MapLoader.parse_position(path["end"])
+            m.add_path(Path(begin=begin, end=end))
+
+    @staticmethod
+    def parse_map(json_object: dict) -> Map:
+        res = Map()
+
+        m = json_object["map"]
+        MapLoader.parse_nodes(res, m["nodes"])
+        MapLoader.parse_paths(res, m["paths"])
+
+        return res
 
     @staticmethod
     def load(path: str) -> Map:
-        handler = MapLoaderHandler()
-        handler.apply_file(path, locations=True)
-        MapLoader.remove_unnecessary_nodes(handler.map)
-        return handler.map
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        with open(path) as file:
+            json_object = json.load(file)
+            return MapLoader.parse_map(json_object)

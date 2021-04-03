@@ -1,6 +1,6 @@
 from typing import Tuple
 
-from map.vector import Vector
+from map.path import Path
 from util.util import find_intersection, add_meters
 
 
@@ -20,12 +20,19 @@ class Position:
     def __eq__(self, other):
         return self.lon == other.lon and self.lat == other.lat
 
+    def __ne__(self, other):
+        return not (self == other)
+
     @property
-    def tuple(self) -> Tuple[float, float]:
+    def lonlat(self) -> Tuple[float, float]:
         return self.lon, self.lat
 
+    @property
+    def latlon(self) -> Tuple[float, float]:
+        return self.lat, self.lon
+
     def __hash__(self):
-        return hash(self.tuple)
+        return hash(self.latlon)
 
     def __str__(self):
         return f'Position {{lat={self.lat}, lon={self.lon}}}'
@@ -33,9 +40,9 @@ class Position:
     def __repr__(self):
         return str(self)
 
-    def shortest_path(self, vector: Vector):
-        begin_vector = Vector(begin=vector.begin, end=self)
-        end_vector = Vector(begin=self, end=vector.end)
+    def shortest_path(self, vector: Path):
+        begin_vector = Path(begin=vector.begin, end=self)
+        end_vector = Path(begin=self, end=vector.end)
 
         x1, y1 = (begin_vector.m_end[0], begin_vector.m_end[1])
         x2, y2 = x1 + vector.m_normal[0], y1 + vector.m_normal[1]
@@ -59,7 +66,7 @@ class Position:
 
             end = add_meters((low_lat, low_lon), (dx, dy))
             end = Position(lat=end[0], lon=end[1])
-            return Vector(begin=self, end=end)
+            return Path(begin=self, end=end)
 
         return min(begin_vector, end_vector, key=lambda vec: vec.dist)
 

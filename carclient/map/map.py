@@ -1,22 +1,23 @@
-from typing import List, Dict
+from typing import Set, Dict
 
-from map.vector import Vector
+from map.path import Path
 from map.node import Node
 
 
 class Map:
     def __init__(self):
-        self.nodes: Dict[Node, Node] = {}
-        self.vectors: List[Vector] = []
+        self.nodes: Set[Node] = set()
+        self.paths: Set[Path] = set()
 
     def add_node(self, node: Node):
         if node not in self.nodes:
-            self.nodes[node] = node
+            self.nodes.add(node)
 
-    def add_vector(self, vector):
-        if vector.begin in self.nodes:
-            self.nodes[vector.begin].add_vector(vector)
-        if vector.end in self.nodes:
-            self.nodes[vector.end].add_vector(vector)
+    def add_path(self, path):
+        if path in self.paths or path.reversed in self.paths:
+            return
 
-        self.vectors.append(vector)
+        self.paths.add(path)
+
+        for node in self.nodes:
+            node.add_path(path)
