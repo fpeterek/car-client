@@ -18,12 +18,13 @@ class PathPlanner:
     image_width = int(os.getenv('IMAGE_WIDTH'))
     image_half = image_width / 2
 
-    def __init__(self, pt: PositionTracker):
+    def __init__(self, pt: PositionTracker, on_wp_reached):
         self.waypoints = []
         self.desired_heading = 0.0
         self.pt = pt
         self.steering = 0.0
         self.velocity = 0.0
+        self.on_wp_reached = on_wp_reached
 
     @staticmethod
     def sign(x: float) -> float:
@@ -135,7 +136,7 @@ class PathPlanner:
             self.velocity = min(self.velocity, CarInfo.steering_v)
 
         if w0.point_inside(car_pos):
-            waypoints.pop(0)
+            self.on_wp_reached(w0.id)
 
     @staticmethod
     def calc_des_heading(current, des):
@@ -176,7 +177,7 @@ class PathPlanner:
         ratio = max(0, d1-2) / max(0.1, d2-2)
 
         if ratio < 0.3 or d1 <= 2:
-            waypoints.pop(0)
+            self.on_wp_reached(waypoints[0].id)
 
         h1 = PathPlanner.calc_des_heading(current, p1)
         h2 = PathPlanner.calc_des_heading(current, p2)
@@ -203,8 +204,7 @@ class PathPlanner:
         v = 100 if s > 2 else 0
 
         print(f'Drive cmd: v={v}, alpha={alpha}')
-
-        # drive(v, int(alpha))
+        drive(v, int(alpha))
 
     def plan(self, waypoints: List[Waypoint]):
 

@@ -13,7 +13,7 @@ class Visualizer:
 
     draw_car = True
 
-    def __init__(self, map_name: str, pt: PositionTracker, osmap: OSMap = None):
+    def __init__(self, map_name: str, pt: PositionTracker, add_wp, osmap: OSMap = None):
 
         self.map = Map.get_map(map_name)
         self.osmap = osmap
@@ -35,6 +35,7 @@ class Visualizer:
         self.points = []
         self.adjusted = []
         self.waypoints = []
+        self.add_waypoint = add_wp
 
         self.pt = pt
 
@@ -161,7 +162,7 @@ class Visualizer:
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 x, y = pygame.mouse.get_pos()
                 x, y = self.cart_to_coords(x, y)
-                self.waypoints.append(Waypoint(x, y))
+                self.add_waypoint(Waypoint(x, y))
 
     def update(self):
         self.update_from_pt()

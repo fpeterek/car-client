@@ -1,5 +1,6 @@
 import time
 from typing import List, Optional
+from threading import Lock
 
 from path_planner import PathPlanner
 from position_fetcher import PositionFetcher
@@ -16,21 +17,39 @@ class CarController:
         self.map = MapLoader.load(path='resources/campus.json')
         self.pt = PositionTracker(osmap=self.map)
         self.pf = PositionFetcher(self.pt)
-        self.planner = PathPlanner(self.pt)
-        self.vis = Visualizer(map_name=map_name, pt=self.pt, osmap=self.map)
+        self.planner = PathPlanner(self.pt, on_wp_reached=self.remove_waypoint)
+        self.vis = Visualizer(map_name=map_name, pt=self.pt, add_wp=self.add_waypoint, osmap=self.map)
+        self.waypoints_lock = Lock()
+        self.waypoints_changed = True
         self.waypoints: Optional[List[Waypoint]] = None
         self.set_waypoints([])
+
+    def get_waypoints(self) -> List[Waypoint]:
+        with self.waypoints_lock:
+            return self.waypoints[:]
+
+    def on_waypoint_change(self) -> None:
+        self.waypoints_changed = True
+        self.vis.set_waypoints(self.waypoints[:])
+
+    def remove_waypoint(self, waypoint_id: int) -> None:
+        with self.waypoints_lock:
+            self.waypoints = list(filter(lambda wp: wp.id != waypoint_id, self.waypoints))
+            self.on_waypoint_change()
 
     def update_position(self) -> None:
         if not self.pf.fetch():
             self.planner.predict_position()
 
     def add_waypoint(self, waypoint: Waypoint) -> None:
-        self.waypoints.append(waypoint)
+        with self.waypoints_lock:
+            self.waypoints.append(waypoint)
+            self.on_waypoint_change()
 
     def set_waypoints(self, waypoints: List[Waypoint]) -> None:
-        self.waypoints = waypoints
-        self.vis.set_waypoints(self.waypoints)
+        with self.waypoints_lock:
+            self.waypoints = waypoints
+            self.on_waypoint_change()
 
     def init_position(self):
         for i in range(1, 0, -1):
@@ -55,10 +74,16 @@ class CarController:
 
         self.pt.disable_rotation()
 
+        copy = None
+
         while True:
             self.update_position()
             self.vis.update()
-            self.planner.plan(self.waypoints)
+            if self.waypoints_changed:
+                with self.waypoints_lock:
+                    copy = self.waypoints[:]
+                    self.waypoints_changed = False
+            self.planner.plan(copy)
             self.pt.enable_rotation()
             time.sleep(0.1)
 

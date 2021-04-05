@@ -1,4 +1,5 @@
 import json
+from threading import Lock
 
 import geopy.distance
 
@@ -7,21 +8,24 @@ from typing import Tuple
 
 class Waypoint:
 
+    waypoint_lock = Lock()
+    counter = 0
+
+    @staticmethod
+    def get_id() -> int:
+        with Waypoint.waypoint_lock:
+            copy = Waypoint.counter
+            Waypoint.counter += 1
+            return copy
+
     def __init__(self, x, y):
+        self.id = Waypoint.get_id()
         self.x = x
         self.y = y
-
-        # self.radius = 10
-        # self.tolerance = 0.00002
         self.tolerance = 2
 
     def point_inside(self, point: Tuple[float, float]) -> bool:
-
         dist = geopy.distance.distance(self.position, point).m
-
-        # sx = self.x - point[0]
-        # sy = self.y - point[1]
-        # dist = (sx**2 + sy**2) ** 0.5
         return dist <= self.tolerance
 
     @property
@@ -36,5 +40,6 @@ class Waypoint:
     def dict(self):
         return {
             'latitude': self.y,
-            'longitude': self.x
+            'longitude': self.x,
+            'id': self.id
         }

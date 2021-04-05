@@ -35,7 +35,7 @@ def heading():
 
 
 def waypoints_list() -> List[dict]:
-    waypoints = [] if controller is None else controller.waypoints
+    waypoints = controller.get_waypoints()
     return [wp.dict for wp in waypoints]
 
 
@@ -52,9 +52,9 @@ def post_waypoint() -> str:
 
 
 def delete_waypoint() -> str:
-    index = request.args.get('index')
-    if index is not None and str(index).isnumeric():
-        controller.waypoints.pop(int(index))
+    wp_id = request.args.get('id')
+    if wp_id is not None and str(wp_id).isnumeric():
+        controller.remove_waypoint(int(wp_id))
         return '{"status": "success"}'
     return '{"status": "failure"}'
 
