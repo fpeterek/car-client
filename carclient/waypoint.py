@@ -39,7 +39,9 @@ class Waypoint:
     @property
     def dict(self):
         return {
-            'latitude': self.y,
-            'longitude': self.x,
+            "position": {
+                'latitude': self.y,
+                'longitude': self.x,
+            },
             'id': self.id
         }
