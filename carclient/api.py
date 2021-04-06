@@ -45,8 +45,9 @@ def get_waypoints():
 
 def post_waypoint() -> str:
     post = request.get_json() if request.is_json else json.loads(request.get_data())
-    lat = post['latitude']
-    lon = post['longitude']
+    position = post['position']
+    lat = position['latitude']
+    lon = position['longitude']
     controller.add_waypoint(Waypoint(x=lon, y=lat))
     return '{"status": "success"}'
 
