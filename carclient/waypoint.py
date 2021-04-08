@@ -9,7 +9,7 @@ from typing import Tuple
 class Waypoint:
 
     waypoint_lock = Lock()
-    counter = 0
+    counter = 1
 
     @staticmethod
     def get_id() -> int:
@@ -31,6 +31,26 @@ class Waypoint:
     @property
     def position(self) -> Tuple[float, float]:
         return self.x, self.y
+
+    @property
+    def latlon(self) -> Tuple[float, float]:
+        return self.y, self.x
+
+    @property
+    def lat(self) -> float:
+        return self.y
+
+    @lat.setter
+    def lat(self, value: float) -> None:
+        self.y = value
+
+    @property
+    def lon(self) -> float:
+        return self.x
+
+    @lon.setter
+    def lon(self, value: float) -> None:
+        self.x = value
 
     @property
     def json(self):

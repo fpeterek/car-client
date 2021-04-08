@@ -9,6 +9,7 @@ from visualizer import Visualizer
 from waypoint import Waypoint
 
 from map.map_loader import MapLoader
+from map.position import Position
 
 
 class CarController:
@@ -43,6 +44,10 @@ class CarController:
 
     def add_waypoint(self, waypoint: Waypoint) -> None:
         with self.waypoints_lock:
+            orig_pos = Position(lat=waypoint.lat, lon=waypoint.lon)
+            adjusted_position = self.map.closest_point(orig_pos)[0]
+            waypoint.lat = adjusted_position.lat
+            waypoint.lon = adjusted_position.lon
             self.waypoints.append(waypoint)
             self.on_waypoint_change()
 

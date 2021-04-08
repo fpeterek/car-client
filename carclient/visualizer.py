@@ -171,7 +171,7 @@ class Visualizer:
 
 if __name__ == '__main__':
     pt = PositionTracker(osmap=None)
-    vis = Visualizer('garage', pt)
+    vis = Visualizer('garage', pt, add_wp=lambda wp: None)
     files = ['geodoma', 'geohrbitov', 'geolouky', 'geoolsina', 'geoolsinaauto',
              'geoolsinazahradni', 'garage', 'waypoint1', 'waypoint2', 'waypointstart']
     files = [f'resources/{name}.csv' for name in files]
