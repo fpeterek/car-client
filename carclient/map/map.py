@@ -1,4 +1,4 @@
-from typing import Set, Optional, Tuple
+from typing import Set, Optional, Tuple, Dict, List
 
 from map.path import Path
 from map.node import Node
@@ -9,10 +9,27 @@ class Map:
     def __init__(self):
         self.nodes: Set[Node] = set()
         self.paths: Set[Path] = set()
+        self.node_by_position: Dict[Position, Node] = dict()
 
     def add_node(self, node: Node):
         if node not in self.nodes:
             self.nodes.add(node)
+            self.node_by_position[node.pos] = node
+
+    def find_path(self, begin: Path, end: Path, tried: Set[Path] = None) -> List[Path]:
+        if begin == end:
+            return [begin]
+
+        if tried is None:
+            tried = set()
+
+        tried.add(begin)
+        to_try = (self.node_by_position[begin.begin].paths | self.node_by_position[begin.end].paths) - tried
+
+        paths = [self.find_path(path, end, tried) for path in to_try]
+        paths = list(filter(lambda lst: bool(lst), paths))
+        # tried.remove(begin)
+        return [] if not paths else [begin] + min(paths, key=lambda lst: len(lst))
 
     def add_path(self, path):
         if path in self.paths or path.reversed in self.paths:

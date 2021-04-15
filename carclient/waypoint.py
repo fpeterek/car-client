@@ -20,6 +20,7 @@ class Waypoint:
 
     def __init__(self, x, y):
         self.id = Waypoint.get_id()
+        self.path = None
         self.x = x
         self.y = y
         self.tolerance = 2

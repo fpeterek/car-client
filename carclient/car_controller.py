@@ -45,7 +45,8 @@ class CarController:
     def add_waypoint(self, waypoint: Waypoint) -> None:
         with self.waypoints_lock:
             orig_pos = Position(lat=waypoint.lat, lon=waypoint.lon)
-            adjusted_position = self.map.closest_point(orig_pos)[0]
+            adjusted_position, path = self.map.closest_point(orig_pos)
+            waypoint.path = path
             waypoint.lat = adjusted_position.lat
             waypoint.lon = adjusted_position.lon
             self.waypoints.append(waypoint)

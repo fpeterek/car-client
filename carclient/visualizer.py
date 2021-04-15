@@ -39,6 +39,10 @@ class Visualizer:
 
         self.pt = pt
 
+        self.shortest_path = []
+        self.closest_path = None
+        self.first_wp_id = -1
+
         self.draw_exact = True
         self.draw_adjusted = True
 
@@ -113,6 +117,7 @@ class Visualizer:
 
             if pair is not None:
                 closest_path, shortest_dist = pair
+                self.closest_path = closest_path
 
                 begin = self.coords_to_cart(shortest_dist.begin.lon, shortest_dist.begin.lat)
                 end = self.coords_to_cart(shortest_dist.end.lon, shortest_dist.end.lat)
@@ -121,6 +126,15 @@ class Visualizer:
                 begin = self.coords_to_cart(closest_path.begin.lon, closest_path.begin.lat)
                 end = self.coords_to_cart(closest_path.end.lon, closest_path.end.lat)
                 pygame.draw.line(self.screen, (245, 117, 66), begin, end, 3)
+
+        if self.waypoints and self.first_wp_id != self.waypoints[0].id and self.closest_path is not None:
+            self.first_wp_id = self.waypoints[0].id
+            self.shortest_path = self.osmap.find_path(self.closest_path, self.waypoints[0].path)
+
+        for path in self.shortest_path:
+            begin = self.coords_to_cart(path.begin.lon, path.begin.lat)
+            end = self.coords_to_cart(path.end.lon, path.end.lat)
+            pygame.draw.line(self.screen, (245, 30, 40), begin, end, 2)
 
         for wp in self.waypoints:
             x, y = self.coords_to_cart(wp.x, wp.y)
