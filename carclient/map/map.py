@@ -16,11 +16,8 @@ class Map:
             self.nodes.add(node)
             self.node_by_position[node.pos] = node
 
-    def find_path(self, begin: Path, end: Path, tried: Set[Path] = None) -> List[Path]:
-        if begin == end:
-            return [begin]
-
-        precedes: Dict[Path, Path] = dict()
+    def _traverse_graph(self, begin: Path, end: Path) -> Dict[Path, Path]:
+        preceding_paths: Dict[Path, Path] = dict()
         current_paths: Set[Path] = {begin}
 
         # Traverse map
@@ -28,18 +25,29 @@ class Map:
             next_paths: Set[Path] = set()
             for path in current_paths:
                 neighbours = self.node_by_position[path.begin].paths | self.node_by_position[path.end].paths
-                neighbours = {n for n in neighbours if n not in precedes}
+                neighbours = {n for n in neighbours if n not in preceding_paths}
                 for n in neighbours:
-                    precedes[n] = path
-                    next_paths |= neighbours
+                    preceding_paths[n] = path
+                    # Return upon discovering the final destination -> there's no need to advance traversal any further
+                    if n == end:
+                        return preceding_paths
+                next_paths |= neighbours
             current_paths = next_paths
+
+        return preceding_paths
+
+    def find_path(self, begin: Path, end: Path) -> List[Path]:
+        if begin == end:
+            return [begin]
+
+        preceding_paths = self._traverse_graph(begin, end)
 
         # Reconstruct path
         path = []
         current = end
         while current != begin:
             path.insert(0, current)
-            current = precedes[current]
+            current = preceding_paths[current]
         path.insert(0, begin)
 
         return path
