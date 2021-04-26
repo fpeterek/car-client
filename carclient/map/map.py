@@ -20,16 +20,29 @@ class Map:
         if begin == end:
             return [begin]
 
-        if tried is None:
-            tried = set()
+        precedes: Dict[Path, Path] = dict()
+        current_paths: Set[Path] = {begin}
 
-        tried.add(begin)
-        to_try = (self.node_by_position[begin.begin].paths | self.node_by_position[begin.end].paths) - tried
+        # Traverse map
+        while current_paths:
+            next_paths: Set[Path] = set()
+            for path in current_paths:
+                neighbours = self.node_by_position[path.begin].paths | self.node_by_position[path.end].paths
+                neighbours = {n for n in neighbours if n not in precedes}
+                for n in neighbours:
+                    precedes[n] = path
+                    next_paths |= neighbours
+            current_paths = next_paths
 
-        paths = [self.find_path(path, end, tried) for path in to_try]
-        paths = list(filter(lambda lst: bool(lst), paths))
-        # tried.remove(begin)
-        return [] if not paths else [begin] + min(paths, key=lambda lst: len(lst))
+        # Reconstruct path
+        path = []
+        current = end
+        while current != begin:
+            path.insert(0, current)
+            current = precedes[current]
+        path.insert(0, begin)
+
+        return path
 
     def add_path(self, path):
         if path in self.paths or path.reversed in self.paths:
